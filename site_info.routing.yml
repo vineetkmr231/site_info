@@ -1,0 +1,9 @@
+site_info.json:
+  path: '/page_json/siteapikey/{json}'
+  defaults:
+    _controller: 'Drupal\site_info\Controller\SiteController::content'
+    _title: 'Json Data'
+  requirements:
+    _permission: 'access content'
+
+

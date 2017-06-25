@@ -1,0 +1,5 @@
+name: Site information
+description: Alter existing Site Information.
+type: module
+version: 1.0
+core: 8.x

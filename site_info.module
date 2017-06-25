@@ -1,0 +1,54 @@
+<?php
+use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+
+function site_info_menu() {
+  $items = array();
+
+  $items['page_json/siteapikey/%json'] = array( 
+    'title' => 'json data', 
+    'description' => 'Display data in json format for particuler node.',
+  );
+ return $items; 
+} 
+
+function site_info_form_system_site_information_settings_alter(&$form,  \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $my_config = \Drupal::config('site_info.settings')->get('siteapikey');
+  if(!empty($my_config)){$default_val = $my_config;} 
+  else{$default_val = 'No API Key yet';}
+    $form['site_api_kesy'] = array(
+    '#type' => 'textfield',
+    '#title' => t("Site API Key"),
+    '#required' => TRUE,
+    '#default_value' => $default_val,  
+  );
+      
+  if(!empty($my_config)){
+    $url = Url::fromUri('internal:/page_json/siteapikey/'.$my_config);
+    $link = Link::fromTextAndUrl(t('Click here'), $url )->toString();
+    $form['help_message'] = array(
+      '#type' => 'markup',
+      '#markup' => '<b>Note:</b> JSON representation of a given Site API Key '.$link,
+   );  
+  $form['actions']['submit']['#value'] = 'Update Configuration';
+  }
+  $form['#submit'][] = 'site_info_form_system_site_information_settings_submit';  
+}
+
+function site_info_form_system_site_information_settings_submit($form,  \Drupal\Core\Form\FormStateInterface $form_state) {
+  
+  $site_api_kesy = $form_state->getValue('site_api_kesy');
+  if(!empty($site_api_kesy)){
+  if(!is_numeric($site_api_kesy)){
+   drupal_set_message(t('Site API Key must be numeric.'), 'error');
+  }
+  else{
+  $site_name = \Drupal::config('site_info.settings')->get('siteapikey');
+  \Drupal::configFactory()->getEditable('site_info.settings')->set('siteapikey', $site_api_kesy)->save();
+  
+  drupal_set_message(t('Site API Key has been saved with that '.$site_api_kesy.'.'), 'status', TRUE);
+  }
+  }
+}
